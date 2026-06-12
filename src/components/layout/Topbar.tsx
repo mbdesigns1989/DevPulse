@@ -10,8 +10,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ModeToggle } from "@/components/theme/mode-toggle"
+import { useAppStore } from "@/store/app-store"
 
 export function Topbar({ title }: { title: string }) {
+  const user = useAppStore((s) => s.user)
+  const density = useAppStore((s) => s.density)
+  const setDensity = useAppStore((s) => s.setDensity)
+
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <SidebarTrigger />
@@ -26,8 +31,15 @@ export function Topbar({ title }: { title: string }) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() =>
+                setDensity(density === "comfortable" ? "compact" : "comfortable")
+              }
+            >
+              Density: {density}
+            </DropdownMenuItem>
             <DropdownMenuItem>Profile</DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
