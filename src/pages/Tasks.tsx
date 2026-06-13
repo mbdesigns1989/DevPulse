@@ -5,6 +5,7 @@ import type { TaskPriority, TaskStatus } from "@/types/task"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog"
 import {
   Select,
   SelectContent,
@@ -82,11 +83,14 @@ export default function Tasks() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Tasks</h2>
-        <p className="text-sm text-muted-foreground">
-          Filter and sort your team's tasks.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Tasks</h2>
+          <p className="text-sm text-muted-foreground">
+            Filter and sort your team's tasks.
+          </p>
+        </div>
+        <CreateTaskDialog />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
