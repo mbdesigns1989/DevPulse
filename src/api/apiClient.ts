@@ -19,6 +19,12 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Ignore requests the app itself canceled (e.g. React Query aborting an
+    // in-flight fetch on unmount) — these are not real failures.
+    if (axios.isCancel(error) || error?.code === "ERR_CANCELED") {
+      return Promise.reject(error)
+    }
+
     const status = error?.response?.status as number | undefined
     let message: string
     if (status === 401) {

@@ -1,9 +1,10 @@
 import { useCallback, useMemo, useReducer } from "react"
-import { mockTasks } from "@/data/mock-tasks"
+import { useFetchTasks } from "@/hooks/use-tasks"
 import { filterAndSortTasks, type Filters } from "@/lib/filter-tasks"
 import type { TaskPriority, TaskStatus } from "@/types/task"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Select,
   SelectContent,
@@ -48,16 +49,15 @@ const statusLabel: Record<TaskStatus, string> = {
 }
 
 export default function Tasks() {
+  const { data: tasks = [], isLoading, isError } = useFetchTasks()
   const [filters, dispatch] = useReducer(filtersReducer, initialFilters)
 
-  // Heavy computation: filter + sort the full list. Memoized so it only
-  // recomputes when the filters change, not on every unrelated re-render.
+  // Heavy computation: filter + sort. Recomputes only when tasks or filters change.
   const visibleTasks = useMemo(
-    () => filterAndSortTasks(mockTasks, filters),
-    [filters]
+    () => filterAndSortTasks(tasks, filters),
+    [tasks, filters]
   )
 
-  // Stable handler references across renders (useCallback).
   const onSearch = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) =>
       dispatch({ type: "SET_SEARCH", value: e.target.value }),
@@ -125,26 +125,42 @@ export default function Tasks() {
         <Button variant="outline" onClick={onReset}>Reset</Button>
       </div>
 
-      <p className="text-sm text-muted-foreground">
-        Showing {visibleTasks.length} of {mockTasks.length} tasks
-      </p>
-
-      {visibleTasks.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-          No tasks match your filters.
-        </div>
-      ) : (
+      {isLoading ? (
         <ul className="divide-y divide-border rounded-lg border border-border">
-          {visibleTasks.map((task) => (
-            <li key={task.id} className="flex items-center justify-between gap-4 px-4 py-3">
-              <span className="font-medium">{task.title}</span>
-              <span className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>{statusLabel[task.status]}</span>
-                <span className="capitalize">{task.priority}</span>
-              </span>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i} className="flex items-center justify-between gap-4 px-4 py-3">
+              <Skeleton className="h-4 w-48" />
+              <Skeleton className="h-4 w-24" />
             </li>
           ))}
         </ul>
+      ) : isError ? (
+        <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+          Couldn't load tasks.
+        </div>
+      ) : (
+        <>
+          <p className="text-sm text-muted-foreground">
+            Showing {visibleTasks.length} of {tasks.length} tasks
+          </p>
+          {visibleTasks.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              No tasks match your filters.
+            </div>
+          ) : (
+            <ul className="divide-y divide-border rounded-lg border border-border">
+              {visibleTasks.map((task) => (
+                <li key={task.id} className="flex items-center justify-between gap-4 px-4 py-3">
+                  <span className="font-medium">{task.title}</span>
+                  <span className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>{statusLabel[task.status]}</span>
+                    <span className="capitalize">{task.priority}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   )
