@@ -10,6 +10,12 @@ export function useFetchTasks() {
     queryFn: getTasks,
     staleTime: 60_000, // 1 min: data stays "fresh" — no refetch on remount/navigation within this window
     gcTime: 300_000, // 5 min: unused cache is kept this long before garbage collection
+    // Run the fetch even when offline. RQ's default networkMode "online" PAUSES
+    // the query while offline (status "pending", fetchStatus "paused") — which
+    // makes the UI fall through to its empty/"no tasks" branch instead of showing
+    // the real "Couldn't load tasks." error. "always" lets the fetch fail fast so
+    // the error state renders correctly. (Found during the Day 9 edge-case audit.)
+    networkMode: "always",
   })
 }
 

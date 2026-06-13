@@ -90,6 +90,8 @@ export default function Tasks() {
 
       <div className="flex flex-wrap items-center gap-3">
         <Input
+          name="search"
+          aria-label="Search tasks by title"
           placeholder="Search by title..."
           value={filters.search}
           onChange={onSearch}
