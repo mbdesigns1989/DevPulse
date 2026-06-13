@@ -1,6 +1,7 @@
 import type { Task, TaskPriority } from "@/types/task"
 import { apiClient } from "@/api/apiClient"
 import type { Todo } from "@/api/types"
+import type { TaskFormValues } from "@/lib/task-schema"
 
 const priorities: TaskPriority[] = ["low", "medium", "high"]
 const assignees = ["Nour", "Sara", "Omar", "Lina"]
@@ -28,4 +29,21 @@ export function mapTodoToTask(todo: Todo): Task {
 export async function getTasks(): Promise<Task[]> {
   const res = await apiClient.get<Todo[]>("/todos", { params: { _limit: 12 } })
   return res.data.map(mapTodoToTask)
+}
+
+export async function createTask(input: TaskFormValues): Promise<Task> {
+  // POST runs through the Axios client (Bearer header + error interceptor).
+  // JSONPlaceholder returns a fake { id: 201 } and does NOT persist the write.
+  const res = await apiClient.post<Todo>("/todos", {
+    title: input.title,
+    completed: input.status === "done",
+  })
+  return {
+    id: String(res.data?.id ?? Date.now()),
+    title: input.title,
+    status: input.status,
+    priority: input.priority,
+    assignee: input.assignee,
+    createdAt: input.dueDate,
+  }
 }

@@ -2,8 +2,8 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus } from "lucide-react"
-import { toast } from "sonner"
 import { taskFormSchema, type TaskFormValues } from "@/lib/task-schema"
+import { useCreateTask } from "@/hooks/use-tasks"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -41,15 +41,16 @@ const defaultValues: TaskFormValues = {
 
 export function CreateTaskDialog() {
   const [open, setOpen] = useState(false)
+  const createTask = useCreateTask()
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues,
   })
 
-  // Day 6: validate + log + toast + close. Day 7 replaces this body with a useMutation call.
+  // Optimistically create the task (appears instantly via the cache), then close.
+  // Success/error toasts are handled inside useCreateTask.
   function onSubmit(data: TaskFormValues) {
-    console.log("[create task]", data)
-    toast.success("Task created")
+    createTask.mutate(data)
     form.reset()
     setOpen(false)
   }
@@ -165,7 +166,9 @@ export function CreateTaskDialog() {
               >
                 Cancel
               </Button>
-              <Button type="submit">Create task</Button>
+              <Button type="submit" disabled={createTask.isPending}>
+                {createTask.isPending ? "Creating…" : "Create task"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>
