@@ -18,6 +18,12 @@ export function useCreateTask() {
 
   return useMutation({
     mutationFn: createTask,
+    // Run the mutation even when offline. React Query's default networkMode
+    // ("online") PAUSES mutations while offline — the request never fires and the
+    // optimistic update hangs with no rollback. "always" lets it run, fail fast,
+    // and trigger onError → rollback. (This is the real reason an offline create
+    // appeared "stuck": RQ was pausing it by design, not hanging.)
+    networkMode: "always",
     onMutate: async (input: TaskFormValues) => {
       // Cancel in-flight refetches so they don't overwrite our optimistic value.
       await qc.cancelQueries({ queryKey: ["tasks"] })
