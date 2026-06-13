@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog"
+import { TaskTable } from "@/components/tasks/TaskTable"
 import {
   Select,
   SelectContent,
@@ -41,12 +42,6 @@ function filtersReducer(state: Filters, action: Action): Filters {
     case "RESET":
       return initialFilters
   }
-}
-
-const statusLabel: Record<TaskStatus, string> = {
-  todo: "To Do",
-  in_progress: "In Progress",
-  done: "Done",
 }
 
 export default function Tasks() {
@@ -152,17 +147,7 @@ export default function Tasks() {
               No tasks match your filters.
             </div>
           ) : (
-            <ul className="divide-y divide-border rounded-lg border border-border">
-              {visibleTasks.map((task) => (
-                <li key={task.id} className="flex items-center justify-between gap-4 px-4 py-3">
-                  <span className="font-medium">{task.title}</span>
-                  <span className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{statusLabel[task.status]}</span>
-                    <span className="capitalize">{task.priority}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <TaskTable tasks={visibleTasks} />
           )}
         </>
       )}
