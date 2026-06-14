@@ -15,6 +15,10 @@ dist-ssr
 # Local build summaries (not tracked)
 summary/
 
+# Internal docs (specs/plans) not tracked — but keep demo screenshots
+docs/
+!docs/screenshots/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
