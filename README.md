@@ -1,73 +1,74 @@
-# React + TypeScript + Vite
+# DevPulse Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A task-management dashboard built to demonstrate a modern, production-style React stack —
+data fetching with caching, type-safe forms, optimistic updates, and a polished themed UI.
 
-Currently, two official plugins are available:
+> **Note:** This is a learning/demo project. It runs against a **mock API**
+> ([JSONPlaceholder](https://jsonplaceholder.typicode.com)) that accepts writes but does **not
+> persist** them — newly created tasks live in the in-memory query cache for the session and reset
+> on a full page reload. The point is to showcase the patterns, not to be a real backend.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+| Tool | Why it's here |
+|---|---|
+| **Vite + React 19 + TypeScript** | Fast dev/build; typed components end to end. |
+| **Tailwind CSS v4** | CSS-first config (`@theme`), design-token driven — light/dark "for free". |
+| **shadcn/ui** | Accessible, owned-in-repo component primitives (table, dialog, select, badge, …). |
+| **React Router** | Nested layout route so the shell (sidebar + topbar) persists across pages. |
+| **Zustand** | Lightweight global app state (user session, UI density). |
+| **TanStack Query** | Server-state caching, dedup, loading/error states, optimistic mutations. |
+| **Axios** | Central HTTP client with auth + error-toast interceptors. |
+| **React Hook Form + Zod** | One schema = runtime validation **and** static types for the create form. |
+| **sonner** | Toast notifications (errors surfaced globally via the Axios interceptor). |
+| **Vitest** | Unit tests for the pure logic (filter/sort, schema, API mapper). |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Architecture
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+  api/             # Axios client + interceptors; typed task endpoints + anti-corruption mapper
+  components/
+    layout/        # AppLayout (shell), AppSidebar, Topbar
+    ui/            # shadcn primitives (owned in-repo)
+    dashboard/     # StatCard (with built-in Skeleton loading state)
+    tasks/         # TaskTable, CreateTaskDialog, status/priority badges
+    theme/         # ThemeProvider (Context) + ModeToggle
+  hooks/           # useFetchTasks (useQuery) + useCreateTask (useMutation)
+  lib/             # filter/sort logic, Zod schema, date format, QueryClient, utils
+  pages/           # Dashboard, Tasks, Settings
+  router/          # route tree (nested layout)
+  store/           # Zustand app store
+  types/           # domain types (Task, TaskStatus, TaskPriority)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Key Patterns
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- **Anti-corruption layer** — the API returns flat `{id, title, completed, userId}`; a mapper
+  (`api/tasks.ts`) translates it into the app's richer `Task` shape, so the UI never depends on the
+  API's vocabulary.
+- **Shared query cache** — Dashboard and Tasks both read the same `["tasks"]` query, so navigating
+  between them triggers **zero** extra network requests within the stale window.
+- **Optimistic create + rollback** — new tasks appear instantly via cache write; on failure the
+  cache is restored from a snapshot and an error toast fires.
+- **Type-safe enum → UI mapping** — status/priority badge colors come from exhaustive
+  `Record<TaskStatus, …>` lookups, so adding an enum value without a color is a compile error.
+- **Right tool per state** — React **Context** for theme, **Zustand** for global app state,
+  **`useReducer`** for page-local filter state.
+- **Token-based theming** — all colors are CSS theme tokens, so light/dark mode works everywhere
+  without per-component branching.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+```bash
+npm install
+npm run dev      # start the dev server
+npm test         # run the unit tests
+npm run build    # type-check + production build
 ```
+
+## Demo
+
+See **[WALKTHROUGH.md](WALKTHROUGH.md)** for a short, presenter-ready demo script with screenshots —
+highlighting the two biggest wins: **React Query caching** (no manual fetch/loading/refetch
+plumbing) and **Zod validation** (one schema for runtime + compile-time safety).
