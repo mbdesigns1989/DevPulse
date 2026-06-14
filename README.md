@@ -21,6 +21,7 @@ data fetching with caching, type-safe forms, optimistic updates, and a polished 
 | **Axios** | Central HTTP client with auth + error-toast interceptors. |
 | **React Hook Form + Zod** | One schema = runtime validation **and** static types for the create form. |
 | **sonner** | Toast notifications (errors surfaced globally via the Axios interceptor). |
+| **Recharts** (via shadcn chart) | The dashboard status donut, styled with the app's theme tokens. |
 | **Vitest** | Unit tests for the pure logic (filter/sort, schema, API mapper). |
 
 ## Architecture
@@ -57,6 +58,9 @@ src/
   **`useReducer`** for page-local filter state.
 - **Token-based theming** — all colors are CSS theme tokens, so light/dark mode works everywhere
   without per-component branching.
+- **Insight-rich dashboard** — accented stat cards, a task-status donut chart (Recharts), a recent-
+  activity feed, and a quick-actions grid — all derived from the single shared `["tasks"]` query
+  (no extra fetches) and fully theme-aware.
 
 ## Getting Started
 

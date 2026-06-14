@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CreateTaskDialog } from "@/components/tasks/CreateTaskDialog"
 import { TaskTable } from "@/components/tasks/TaskTable"
+import { SearchX } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -145,7 +146,8 @@ export default function Tasks() {
             Showing {visibleTasks.length} of {tasks.length} tasks
           </p>
           {visibleTasks.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+              <SearchX className="h-6 w-6" />
               No tasks match your filters.
             </div>
           ) : (

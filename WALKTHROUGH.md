@@ -10,6 +10,22 @@ screenshot of the moment.
 
 ---
 
+## 0. Dashboard at a Glance
+
+**Scenario: landing on the dashboard.**
+
+- **Action:** Open the app — it lands on the **Dashboard**.
+- **What's there:** four accented stat cards (Total / In Progress / Completed / High Priority), a
+  **task-status donut** (To Do / In Progress / Done with counts), a **Recent Activity** feed (newest
+  tasks with relative timestamps), and a **Quick Actions** grid.
+- **What it proves:** Every widget is derived from a **single** cached `["tasks"]` query — no extra
+  network requests — and every color is a theme token, so the whole dashboard flips cleanly between
+  light and dark mode.
+
+![DevPulse dashboard](docs/screenshots/dashboard.png)
+
+---
+
 ## 1. Client-Side Schema Validation (Zod + React Hook Form)
 
 **Scenario: submitting an empty form.**
